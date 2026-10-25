@@ -34,7 +34,18 @@ try {
         exit 1
     }
     $configDst = Join-Path $Target "agent-notes-mcp.toml"
-    Copy-Item -LiteralPath $configSrc -Destination $configDst -Force
+    # Target TOML is machine-local (paths, roots may be edited in place). Never overwrite
+    # a live config with the repo template — 2026-10-25 incident: deploy clobbered a
+    # fixed scope_map/aliases path back to the stale -v1 names and broke scope resolution.
+    if (Test-Path -LiteralPath $configDst) {
+        Write-Host "Config exists in target: kept local copy (template not forced). $configDst"
+        $templateCopy = Join-Path $Target "agent-notes-mcp.template.toml"
+        Copy-Item -LiteralPath $configSrc -Destination $templateCopy -Force
+        Write-Host "Template refreshed next to it: $templateCopy (diff & merge by hand)"
+    }
+    else {
+        Copy-Item -LiteralPath $configSrc -Destination $configDst
+    }
 
     $exe = Join-Path $Target "AgentNotesMcp.exe"
     $exeJson = $exe.Replace('\', '\\')

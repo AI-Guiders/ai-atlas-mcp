@@ -22,8 +22,8 @@ path = "D:/Experiments/PersonalCursorFolder/open/group-kb"
 
 [workspace]
 default_scope = "mixed"
-scope_map = "work/local/workspace-scope-map-v1.md"
-scope_aliases = "work/local/scope-alias-map-v1.md"
+scope_map = "work/local/workspace-scope-map.md"
+scope_aliases = "work/local/scope-alias-map.md"
 
 [status]
 enabled = true

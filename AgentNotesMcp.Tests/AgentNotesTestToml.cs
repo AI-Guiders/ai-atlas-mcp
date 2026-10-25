@@ -8,8 +8,8 @@ internal static class AgentNotesTestToml
     internal static string Write(
         string knowledgeRoot,
         string defaultScope = "door-to-singularity",
-        string scopeMap = "work/local/workspace-scope-map-v1.md",
-        string scopeAliases = "work/local/scope-alias-map-v1.md")
+        string scopeMap = "work/local/workspace-scope-map.md",
+        string scopeAliases = "work/local/scope-alias-map.md")
     {
         var root = knowledgeRoot.Replace('\\', '/');
         var toml = $"""
@@ -57,8 +57,8 @@ internal static class AgentNotesTestToml
     internal static RuntimeScope InstallForRoot(string knowledgeRoot, string? scopeMap = null, string? scopeAliases = null) =>
         Install(Write(
             knowledgeRoot,
-            scopeMap: scopeMap ?? "work/local/workspace-scope-map-v1.md",
-            scopeAliases: scopeAliases ?? "work/local/scope-alias-map-v1.md"));
+            scopeMap: scopeMap ?? "work/local/workspace-scope-map.md",
+            scopeAliases: scopeAliases ?? "work/local/scope-alias-map.md"));
 
     internal sealed class RuntimeScope : IDisposable
     {

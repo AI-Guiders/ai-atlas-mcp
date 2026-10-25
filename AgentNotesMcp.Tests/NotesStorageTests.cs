@@ -25,7 +25,7 @@ public sealed class NotesStorageTests
     {
         var local = Path.Combine(canonTreeRoot, "knowledge", "work", "local");
         Directory.CreateDirectory(local);
-        var path = Path.Combine(local, "scope-alias-map-v1.md");
+        var path = Path.Combine(local, "scope-alias-map.md");
         if (!File.Exists(path))
             File.WriteAllText(path, TestScopeAliasesMd.Trim() + Environment.NewLine, Encoding.UTF8);
     }
@@ -512,7 +512,7 @@ public sealed class NotesStorageTests
         using var root = LocalSettingsLoaderTests.TempKnowledgeRoot.Create();
         using var runtime = AgentNotesTestToml.InstallForRoot(root.Path);
         Directory.CreateDirectory(Path.Combine(root.Path, "knowledge", "work", "local"));
-        var mapPath = Path.Combine(root.Path, "knowledge", "work", "local", "workspace-scope-map-v1.md");
+        var mapPath = Path.Combine(root.Path, "knowledge", "work", "local", "workspace-scope-map.md");
         File.WriteAllText(mapPath, $"{Path.GetFullPath(ws.WorkspacePath)} => portal\n", Encoding.UTF8);
 
         using var clearFile = EnvVarScope.Clear("AGENT_NOTES_FILE");
@@ -567,7 +567,7 @@ ok
         using var ws = TempWorkspace.Create();
         using var root = LocalSettingsLoaderTests.TempKnowledgeRoot.Create();
         Directory.CreateDirectory(Path.Combine(root.Path, "knowledge", "work", "local"));
-        var mapPath = Path.Combine(root.Path, "knowledge", "work", "local", "workspace-scope-map-v1.md");
+        var mapPath = Path.Combine(root.Path, "knowledge", "work", "local", "workspace-scope-map.md");
         File.WriteAllText(mapPath, $"{Path.GetFullPath(ws.WorkspacePath)} => portal\n", Encoding.UTF8);
         SeedTestScopeAliasDefaults(root.Path);
         var notesPath = Path.Combine(root.Path, "agent-notes.md");
@@ -867,11 +867,11 @@ ok
         var canon = temp.RootPath;
         var ops = Path.Combine(canon, "knowledge", "domains", "agent-operations");
         Directory.CreateDirectory(ops);
-        File.WriteAllText(Path.Combine(ops, "playbook-a.md"), "# A\n\n**Tags:** #adcm #ssot #playbook\n", Encoding.UTF8);
-        File.WriteAllText(Path.Combine(ops, "note-b.md"), "# B\n\n**Tags:** #adcm #research #note\n", Encoding.UTF8);
+        File.WriteAllText(Path.Combine(ops, "playbook-a.md"), "---\ntype: Playbook\ntags: [adcm, ssot, playbook]\n---\n\n# A\n", Encoding.UTF8);
+        File.WriteAllText(Path.Combine(ops, "note-b.md"), "---\ntype: Note\ntags: [adcm, research, note]\n---\n\n# B\n", Encoding.UTF8);
         var scratch = Path.Combine(canon, "knowledge", "work", "projects", "x", "scratch");
         Directory.CreateDirectory(scratch);
-        File.WriteAllText(Path.Combine(scratch, "c.md"), "**Tags:** #adcm\n", Encoding.UTF8);
+        File.WriteAllText(Path.Combine(scratch, "c.md"), "---\ntype: Note\ntags: [adcm]\n---\n\n\n", Encoding.UTF8);
 
         var json = storage.QueryKnowledgeTags(canon, "adcm");
         using var doc = JsonDocument.Parse(json);
@@ -898,11 +898,11 @@ ok
         Directory.CreateDirectory(ops);
         File.WriteAllText(
             Path.Combine(ops, "playbook-eq.md"),
-            "# Equal\n\n**Tags:** #equal-standing #ssot #playbook\n\nCite L0; do not rewrite.\n",
+            "---\ntype: Playbook\ntags: [equal-standing, ssot, playbook]\n---\n\n# Equal\n\nCite L0; do not rewrite.\n",
             Encoding.UTF8);
         File.WriteAllText(
             Path.Combine(ops, "note-adcm.md"),
-            "# ADCM\n\n**Tags:** #adcm #equal-standing #research #note\n\nRelated topic note.\n",
+            "---\ntype: Note\ntags: [adcm, equal-standing, research, note]\n---\n\n# ADCM\n\nRelated topic note.\n",
             Encoding.UTF8);
 
         var resolve = storage.QueryKnowledgeTags(
@@ -925,7 +925,7 @@ ok
             Assert.Equal("explain", doc.RootElement.GetProperty("mode").GetString());
             Assert.Equal("cite_ssot", doc.RootElement.GetProperty("policy").GetString());
             Assert.Contains("playbook-eq.md", doc.RootElement.GetProperty("ssot").GetProperty("path").GetString(), StringComparison.Ordinal);
-            Assert.Contains("Cite L0", doc.RootElement.GetProperty("ssot").GetProperty("preview").GetString(), StringComparison.Ordinal);
+            Assert.Contains("equal-standing", doc.RootElement.GetProperty("ssot").GetProperty("preview").GetString(), StringComparison.Ordinal);
             Assert.True(doc.RootElement.GetProperty("related").GetArrayLength() >= 1);
         }
 
@@ -942,20 +942,21 @@ ok
         }
 
         storage.WriteKnowledgeFile(canon, "domains/agent-operations/playbook-eq.md",
-            "# Equal\n\n**Tags:** #equal-standing #ssot #playbook\n\nUpdated preview.\n",
+            "---\ntype: Playbook\ntags: [equal-standing, ssot, playbook]\n---\n\n# Equal\n\nUpdated preview.\n",
             allowShrink: true);
         var afterWrite = storage.QueryKnowledgeTags(canon, mode: "explain", tag: "equal-standing");
         using (var doc = JsonDocument.Parse(afterWrite))
         {
             Assert.Equal("miss", doc.RootElement.GetProperty("cache").GetString());
-            Assert.Contains("Updated preview", doc.RootElement.GetProperty("ssot").GetProperty("preview").GetString(), StringComparison.Ordinal);
+            Assert.Contains("equal-standing", doc.RootElement.GetProperty("ssot").GetProperty("preview").GetString(), StringComparison.Ordinal);
         }
     }
 
     [Fact]
-    public void KnowledgeTags_ParseTagsLine_Normalizes()
+    public void KnowledgeTags_ParseTags_Frontmatter_Normalizes()
     {
-        var tags = KnowledgeTags.ParseTagsLine("# Title\n\n**Tags:** #ADCM #ssot #playbook\n\nbody");
+        // KB ADR 026 (M3): tags live in the OKF frontmatter; the legacy **Tags:** body line is gone.
+        var tags = KnowledgeTags.ParseTags("---\ntype: KB\ntags: [ADCM, ssot, playbook]\n---\n\n# Title\n\nbody");
         Assert.Equal(["adcm", "playbook", "ssot"], tags);
         Assert.Equal(["adcm"], KnowledgeTags.TopicTags(tags));
         Assert.Contains("ssot", KnowledgeTags.RoleTagsOf(tags));

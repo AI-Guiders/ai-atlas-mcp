@@ -2,7 +2,7 @@
 
 **[Model Context Protocol (MCP)](https://modelcontextprotocol.io) Server for Anti-Confabulation Epistemic Guardrails (`L0`), Hot Context Routing (`route_context`), and [Open Knowledge Format (OKF)](https://github.com/open-knowledge-format/open-knowledge-format) Knowledge Bases**
 
-Paired with the public knowledge base **[`AI-Guiders/ai-welcome-atlas`](https://github.com/AI-Guiders/ai-welcome-atlas)**, **AI Atlas MCP** transforms frontier LLMs from fluent text generators into rigorous scientific and engineering peers that verify claims via formal tools (such as the **Lean 4** theorem prover in [`AI-Guiders/scientific-papers`](https://github.com/AI-Guiders/scientific-papers) and [`AI-Guiders/mt-lattice-fluid`](https://github.com/AI-Guiders/mt-lattice-fluid)) before speaking.
+Paired with the public knowledge base **[`AI-Guiders/ai-welcome-atlas`](https://github.com/AI-Guiders/ai-welcome-atlas)**, **AI Atlas MCP** transforms frontier LLMs from fluent text generators into rigorous scientific and engineering peers that verify claims via formal tools (such as the **Lean 4** theorem prover in [`AI-Guiders/scientific-papers`](https://github.com/AI-Guiders/scientific-papers) and [`AI-Guiders/discrete-quantum-mechanics`](https://github.com/AI-Guiders/discrete-quantum-mechanics)) before speaking.
 
 ---
 
@@ -47,7 +47,7 @@ Copy and edit `config/agent-notes-mcp.toml` to point `[knowledge.roots]` to your
 | **[`AI-Guiders/ai-atlas-mcp`](https://github.com/AI-Guiders/ai-atlas-mcp)** | This repository: MCP server for L0 anti-confabulation routing and OKF knowledge management. |
 | **[`AI-Guiders/ai-welcome-atlas`](https://github.com/AI-Guiders/ai-welcome-atlas)** | Public OKF knowledge base (`knowledge/`), epistemic contracts, and scientific world cards. |
 | **[`AI-Guiders/scientific-papers`](https://github.com/AI-Guiders/scientific-papers)** | Series I (`paper-1`..`paper-4`) & Series II (`paper-5`..`paper-8`) papers and standalone Lean 4 kernel [`RotatorCalculusPaper.lean`](https://github.com/AI-Guiders/scientific-papers/blob/main/RotatorCalculusPaper.lean) (`thm1`–`thm17`, `0 sorryAx`, `0 Classical.choice`). |
-| **[`AI-Guiders/mt-lattice-fluid`](https://github.com/AI-Guiders/mt-lattice-fluid)** | Full 8-chapter academic monograph, natural sciences course, `lean/MtCarrier/` formalization, and cleanroom photovoltaic troubleshooting protocols (`M1`–`M4`, `F1`–`F6`). |
+| **[`AI-Guiders/discrete-quantum-mechanics`](https://github.com/AI-Guiders/discrete-quantum-mechanics)** | Full 8-chapter academic monograph, natural sciences course, `lean/MtCarrier/` formalization, and cleanroom photovoltaic troubleshooting protocols (`M1`–`M4`, `F1`–`F6`). |
 | **[`AI-Guiders/guiders-physics`](https://github.com/AI-Guiders/guiders-physics)** | `.NET` digital twin and interactive carrier-impedance simulator. |
 
 ---

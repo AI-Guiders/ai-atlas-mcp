@@ -6,6 +6,8 @@ using AgentNotesMcp.Status;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
+Console.Error.WriteLine($"AgentNotesMcp: mcp-json relaxed = {McpJsonRelax.EnsureRelaxed()}");
+
 if (AgentNotesBootstrap.IsStatusOnly(args))
     return await AgentNotesStatusOnlyRunner.RunAsync(args);
 
@@ -17,6 +19,15 @@ if (startupCode != 0)
 }
 
 AgentNotesRuntime.Initialize(localSettings!, AgentNotesBootstrap.LoadedConfigPath);
+
+// ADR-027: inline git versioning — no .revisions snapshots, no autoship. Git is required.
+GitHelper.Configure(localSettings!.Git.Path);
+var gitProblem = GitHelper.StartupProblem(localSettings!.PrimaryKnowledgeRoot);
+if (gitProblem is not null)
+{
+    Console.Error.WriteLine($"AgentNotesMcp git (ADR-027): {gitProblem}");
+    return 3;
+}
 
 var storage = new NotesStorage();
 var handlers = new ToolHandlers(storage);

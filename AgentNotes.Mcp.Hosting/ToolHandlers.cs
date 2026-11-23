@@ -200,8 +200,7 @@ public sealed class ToolHandlers
         {
             var knowledgePath = ToolArgs.OptionalString(args, "knowledge_path");
             var knowledgeRootId = ToolArgs.OptionalString(args, "knowledge_root_id");
-            var saveRevision = ToolArgs.GetBoolOrDefault(args, "save_revision", true);
-            return _storage.NormalizeKnowledgeSections(knowledgePath, filePath, apply, saveRevision, knowledgeRootId);
+            return _storage.NormalizeKnowledgeSections(knowledgePath, filePath, apply, knowledgeRootId);
         }
 
         var workspacePath = ToolArgs.RequiredString(args, "workspace_path");
@@ -214,9 +213,8 @@ public sealed class ToolHandlers
         var knowledgeRootId = ToolArgs.OptionalKnowledgeRootId(args);
         var filePath = ToolArgs.RequiredString(args, "file_path");
         var content = ToolArgs.RequiredString(args, "content");
-        var saveRevision = ToolArgs.GetBoolOrDefault(args, "save_revision", true);
         var allowShrink = ToolArgs.GetBoolOrDefault(args, "allow_shrink", false);
-        return _storage.WriteKnowledgeFile(knowledgePath, filePath, content, saveRevision, knowledgeRootId, allowShrink);
+        return _storage.WriteKnowledgeFile(knowledgePath, filePath, content, knowledgeRootId, allowShrink);
     }
 
     private string AppendKnowledgeFile(IReadOnlyDictionary<string, JsonElement> args)
@@ -225,8 +223,7 @@ public sealed class ToolHandlers
         var knowledgeRootId = ToolArgs.OptionalKnowledgeRootId(args);
         var filePath = ToolArgs.RequiredString(args, "file_path");
         var content = ToolArgs.RequiredString(args, "content");
-        var saveRevision = ToolArgs.GetBoolOrDefault(args, "save_revision", true);
-        return _storage.AppendKnowledgeFile(knowledgePath, filePath, content, saveRevision, knowledgeRootId);
+        return _storage.AppendKnowledgeFile(knowledgePath, filePath, content, knowledgeRootId);
     }
 
     private string UpsertKnowledgeSection(IReadOnlyDictionary<string, JsonElement> args)
@@ -236,10 +233,9 @@ public sealed class ToolHandlers
         var filePath = ToolArgs.RequiredString(args, "file_path");
         var sectionId = ToolArgs.RequiredString(args, "section_id");
         var content = ToolArgs.RequiredString(args, "content");
-        var saveRevision = ToolArgs.GetBoolOrDefault(args, "save_revision", true);
         if (!ToolArgs.IsValidSectionId(sectionId))
             throw new ArgumentException("section_id must match ^[A-Za-z0-9._-]+$.");
-        return _storage.UpsertKnowledgeSection(knowledgePath, filePath, sectionId, content, saveRevision, knowledgeRootId);
+        return _storage.UpsertKnowledgeSection(knowledgePath, filePath, sectionId, content, knowledgeRootId);
     }
 
     private string DeleteKnowledgeSection(IReadOnlyDictionary<string, JsonElement> args)

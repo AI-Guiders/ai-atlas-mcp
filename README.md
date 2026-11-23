@@ -54,7 +54,7 @@ Copy and edit `config/agent-notes-mcp.toml` to point `[knowledge.roots]` to your
 
 ## Документация на русском языке (AI Atlas MCP / `agent-notes-mcp`)
 
-[MCP](https://modelcontextprotocol.io)-сервер для **hot-контекста** (`agent-notes.md`) и **слоя `knowledge/`** (чтение/запись карточек, мета-контрактов L0 и плейбуков в стандарте Open Knowledge Format). Версия **2.1** (Core **AIGuiders.AgentNotes.Core** 2.1.0, multi-root read-only) настраивается через **локальный TOML** (`--config`).
+[MCP](https://modelcontextprotocol.io)-сервер для **hot-контекста** (`agent-notes.md`) и **слоя `knowledge/`** (чтение/запись карточек, мета-контрактов L0 и плейбуков в стандарте Open Knowledge Format). Версия **2.2.0** (Core **AIGuiders.AgentNotes.Core** 2.2.0, `.NET 11`, git-native history по ADR-027, multi-root read-only) настраивается через **локальный TOML** (`--config`).
 
 ### Быстрый старт
 

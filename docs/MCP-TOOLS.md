@@ -42,11 +42,11 @@
 
 ### `list_agent_notes_revisions`
 
-Список ревизий заметок для rollback. Ревизии хранятся рядом с файлом заметок в подпапке .revisions.
+LEGACY (ADR-027): список ревизий из .revisions/. Новые записи больше не создают ревизий — история в git (git log --follow). Существующие .revisions остаются читаемыми.
 
 ### `rollback_agent_notes`
 
-Откатить заметки к выбранной ревизии (или к последней, если revision_file не задан). Текущее содержимое перед откатом тоже сохраняется как ревизия.
+LEGACY (ADR-027): откатить заметки к ревизии из .revisions/. Новые ревизии не создаются — для свежей истории используй git (git log --follow agent-notes.md + git checkout <commit> -- agent-notes.md).
 
 ### `search_agent_notes`
 
@@ -70,15 +70,15 @@
 
 ### `write_knowledge_file`
 
-Записать файл в каталог knowledge/ (полная замена). Перед записью текущая версия сохраняется в knowledge/.revisions/ (если save_revision=true). Запись только в primary; read-only roots (knowledge_root_id=group) отклоняются. Shorter rewrite of an existing file requires allow_shrink=true (same policy as cdp_buffer set_text) — prefer append/upsert for surgical edits.
+Записать файл в каталог knowledge/ (полная замена). История — через git commit (ADR-027), .revisions не пишутся; запись поверх незакоммиченных внешних правок отклоняется. Запись только в primary; read-only roots (knowledge_root_id=group) отклоняются. Shorter rewrite of an existing file requires allow_shrink=true (same policy as cdp_buffer set_text) — prefer append/upsert for surgical edits.
 
 ### `append_knowledge_file`
 
-Добавить блок в конец файла в knowledge/ без перезаписи. Перед добавлением текущая версия сохраняется в knowledge/.revisions/ (если save_revision=true).
+Добавить блок в конец файла в knowledge/ без перезаписи. История — через git commit (ADR-027), .revisions не пишутся.
 
 ### `upsert_knowledge_section`
 
-Вставить или обновить секцию в файле knowledge/ по section_id (маркеры <!-- section:ID --> ... <!-- /section:ID -->). Дубли/битая разметка → REJECTED. Перед изменением текущая версия сохраняется в knowledge/.revisions/ (если save_revision=true).
+Вставить или обновить секцию в файле knowledge/ по section_id (маркеры <!-- section:ID --> ... <!-- /section:ID -->). Дубли/битая разметка → REJECTED. История — через git commit (ADR-027), .revisions не пишутся.
 
 ### `delete_knowledge_file`
 

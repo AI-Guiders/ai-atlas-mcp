@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <!-- Без одиночного RuntimeIdentifier: при build/run SDK берёт RID хоста. Публикация: dotnet publish -r win-x64|linux-x64 -->
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
     <SelfContained>true</SelfContained>
@@ -11,7 +11,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>AgentNotesMcp</RootNamespace>
     <AssemblyName>AgentNotesMcp</AssemblyName>
-    <Version>2.1.5</Version>
+    <Version>2.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

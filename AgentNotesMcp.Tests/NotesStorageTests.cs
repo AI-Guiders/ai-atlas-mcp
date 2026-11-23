@@ -204,14 +204,21 @@ public sealed class NotesStorageTests
     }
 
     [Fact]
-    public void Rollback_RestoresPreviousContent_AndCreatesRollbackRevision()
+    public void Rollback_RestoresPreviousContent_FromLegacyRevisions()
     {
         using var temp = TempWorkspace.Create();
         using var env = EnvVarScope.Set("AGENT_NOTES_FILE", temp.NotesFilePath);
         var storage = new NotesStorage();
 
-        Assert.Equal("OK", storage.Write(temp.WorkspacePath, "v1"));
         Assert.Equal("OK", storage.Write(temp.WorkspacePath, "v2"));
+
+        // ADR-027: writes no longer create .revisions snapshots — seed a legacy revision explicitly.
+        var revisionsDir = Path.Combine(Path.GetDirectoryName(temp.NotesFilePath)!, ".revisions");
+        Directory.CreateDirectory(revisionsDir);
+        File.WriteAllText(
+            Path.Combine(revisionsDir, "20260101-000000-000-write-agent-notes-md-00000000.md"),
+            "v1",
+            Encoding.UTF8);
 
         var beforeRollback = ParseRevisionList(storage.ListRevisions(temp.WorkspacePath, 20));
         Assert.NotEmpty(beforeRollback);
@@ -220,10 +227,9 @@ public sealed class NotesStorageTests
         Assert.StartsWith("OK (", rollbackResult, StringComparison.Ordinal);
         Assert.Equal("v1", storage.Read(temp.WorkspacePath));
 
+        // Rollback itself must not create new revisions either.
         var afterRollback = ParseRevisionList(storage.ListRevisions(temp.WorkspacePath, 20));
-        Assert.Contains(
-            afterRollback,
-            static file => file.Contains("rollback-", StringComparison.OrdinalIgnoreCase));
+        Assert.Single(afterRollback);
     }
 
     [Fact]
@@ -305,7 +311,7 @@ public sealed class NotesStorageTests
         using var root = LocalSettingsLoaderTests.TempKnowledgeRoot.Create();
         using var runtime = AgentNotesTestToml.InstallForRoot(root.Path);
         var storage = new NotesStorage();
-        storage.WriteKnowledgeFile(root.Path, "lines.md", "a\r\nb\nc\nd", saveRevision: false);
+        storage.WriteKnowledgeFile(root.Path, "lines.md", "a\r\nb\nc\nd");
         var path = root.Path;
         Assert.Equal("b\nc", storage.ReadKnowledgeFile(path, "lines.md", 2, 2));
         Assert.Equal("c\nd", storage.ReadKnowledgeFile(path, "lines.md", 3, null));
@@ -323,8 +329,7 @@ public sealed class NotesStorageTests
         using var runtime = AgentNotesTestToml.InstallForRoot(root.Path);
         var storage = new NotesStorage();
         storage.WriteKnowledgeFile(root.Path, "long.md",
-            "# Title\n\n<!-- section:meta -->\n- id: demo\n<!-- /section:meta -->\n\n<!-- section:body -->\nline1\nline2\nline3\nline4\nline5\nline6\n<!-- /section:body -->\n",
-            saveRevision: false);
+            "# Title\n\n<!-- section:meta -->\n- id: demo\n<!-- /section:meta -->\n\n<!-- section:body -->\nline1\nline2\nline3\nline4\nline5\nline6\n<!-- /section:body -->\n");
 
         var json = storage.OutlineKnowledgeFile(root.Path, "long.md", previewLines: 2);
         Assert.Contains("\"mode\": \"outline\"", json);
@@ -495,10 +500,13 @@ public sealed class NotesStorageTests
         Assert.Equal(1, searchDoc.RootElement.GetProperty("total_matches").GetInt32());
 
         Assert.Equal("OK", storage.Write(temp.WorkspacePath, "mutated"));
-        var revisions = ParseRevisionList(storage.ListRevisions(temp.WorkspacePath, 20));
-        var seedRevision = revisions
-            .FirstOrDefault(static file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase));
-        Assert.False(string.IsNullOrEmpty(seedRevision));
+
+        // ADR-027: writes no longer snapshot — seed a legacy revision holding the pre-mutation state.
+        var preMutation = "seed\n\n<!-- section:current-task -->\nBuild integration checks\n<!-- /section:current-task -->\n";
+        var revisionsDir = Path.Combine(Path.GetDirectoryName(temp.NotesFilePath)!, ".revisions");
+        Directory.CreateDirectory(revisionsDir);
+        const string seedRevision = "20260101-000000-000-write-agent-notes-md-00000000.md";
+        File.WriteAllText(Path.Combine(revisionsDir, seedRevision), preMutation, Encoding.UTF8);
 
         var rollbackResult = storage.Rollback(temp.WorkspacePath, seedRevision);
         Assert.StartsWith("OK (", rollbackResult, StringComparison.Ordinal);

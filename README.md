@@ -102,9 +102,9 @@ Software: [MIT](LICENSE) ([текст OSI](https://opensource.org/license/MIT)) 
 
 ### Возможности (сжато)
 
-- **Заметки:** атомарная запись, ревизии в `.revisions/`, поиск, rollback.
+- **Заметки и секции:** атомарная запись, точечный `upsert`/`delete` секций `<!-- section:id -->`, история изменений напрямую через **Git (`git commit`, ADR-027)** с защитой от перезаписи незакоммиченных внешних правок и случайного усечения (`allow_shrink`).
 - **Hot-context и анти-конфабуляционный роутер:** `read_hot_context`, `extract_from_archive`, `compact_hot_context`, `memory_health`, `route_context`.
-- **Knowledge:** `read_knowledge_file`, `write_knowledge_file`, … — пути относительно `knowledge/`; корень — **`knowledge_path`** в туле или **primary root** из TOML.
+- **Knowledge (`knowledge/`):** `read_knowledge_file` (с режимом `outline` для экономного обзора заголовков), `write_knowledge_file`, `append_knowledge_file`, `upsert_knowledge_section`, `knowledge_tags` — пути относительно `knowledge/`; корень — **`knowledge_path`** в туле или **primary root** из TOML (с поддержкой read-only корней `group` / публичного атласа).
 - **Контракты:** `KB-V2-CONTRACT.md`, `coexistence-framework-v1.md` — в репозитории канона.
 
 Полнотекст по Markdown-дереву канона **не** в этом процессе: для поиска — **[Hybrid Codebase Index](https://github.com/KarataevDmitry/hybrid-codebase-index)**.
@@ -113,7 +113,7 @@ Software: [MIT](LICENSE) ([текст OSI](https://opensource.org/license/MIT)) 
 
 При запущенном MCP с **`--config`**: **`{primary knowledge root}/agent-notes.md`** (см. `[knowledge]` в TOML).
 
-Иначе (in-proc / тесты без runtime): **`AGENT_NOTES_FILE`** → иначе **`workspace_path/.cascade-ide/agent-notes.md`**. Ревизии — рядом с каталогом файла: **`.revisions/*.md`**.
+Иначе (in-proc / тесты без runtime): **`AGENT_NOTES_FILE`** → иначе **`workspace_path/.cascade-ide/agent-notes.md`**. История изменений ведётся в Git (ADR-027).
 
 ### Слой `knowledge/`
 
